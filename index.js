@@ -1,21 +1,26 @@
 //Webex Bot Starter - featuring the webex-node-bot-framework - https://www.npmjs.com/package/webex-node-bot-framework
 
-var framework = require('webex-node-bot-framework');
-var webhook = require('webex-node-bot-framework/webhook');
-var express = require('express');
-var bodyParser = require('body-parser');
-var app = express();
+const frameworkD = require('webex-node-bot-framework');
+const webhook = require('webex-node-bot-framework/webhook');
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
 app.use(bodyParser.json());
 app.use(express.static('images'));
-const config = require("./config.json");
+
+const config = {
+    "webhookUrl": process.env.WEBHOOK_URL || "WEBHOOK_URL",
+    "token": process.env.BOT_TOKEN || "BOT_TOKEN",
+    "port": process.env.PORT || 8080
+};
 
 // init framework
-var framework = new framework(config);
+const framework = new frameworkD(config);
 framework.start();
 console.log("Starting framework, please wait...");
 
 framework.on("initialized", function () {
-  console.log("framework is all fired up! [Press CTRL-C to quit]");
+  console.log(`framework is all fired up and listening for events on ${config.webhookUrl}! [Press CTRL-C to quit]`);
 });
 
 // A spawn event is generated when the framework finds a space with your bot in it
@@ -234,7 +239,7 @@ app.get('/', function (req, res) {
 
 app.post('/', webhook(framework));
 
-var server = app.listen(config.port, function () {
+var server = app.listen(process.env.PORT ? process.env.PORT : config.port, function () {
   framework.debug('framework listening on port %s', config.port);
 });
 
